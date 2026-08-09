@@ -1,0 +1,9 @@
+numpy
+scikit-learn
+pandas
+matplotlib
+joblib
+
+#py -m pip install -r requirements.txt
+
+#python 3.10
