@@ -64,23 +64,32 @@ y = df[df_stats["label"]]
 
 X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42)
 
-pipeline_model.fit(X_train, y_train)
+#y scaling to avoid negative predictions
+y_train_log = np.log1p(y_train)
 
-y_prediction = pipeline_model.predict(X_test)
+pipeline_model.fit(X_train, y_train_log)
+
+y_prediction_log = pipeline_model.predict(X_test)
+
+y_prediction = np.expm1(y_prediction_log)
+
 model_score = {
-    "mse": mean_squared_error(y_test,y_prediction),
     "r2": r2_score(y_test,y_prediction),
 }
+categorical_columns_summary = { value:list(set(df[value])) for value in set(df_stats["categorical_columns"])}
+print(categorical_columns_summary)
 
 model_data = {
     "model":pipeline_model,
-    "score":model_score
+    "score":model_score,
+    "categorical_columns":categorical_columns_summary
 }
 
-model_name = "insurance_regressor_model.keras"
+model_name = "insurance_regressor_model.joblib"
+
 
 joblib.dump(model_data,model_name)
-print(f"\n\r{model_name} Saved Successfully\n\rMse:{model_score['mse']}\n\rR2:{model_score['r2']}")
+print(f"\n\r{model_name} Saved Successfully\n\rR2:{model_score['r2']}")
 
 
 
